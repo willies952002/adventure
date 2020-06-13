@@ -23,6 +23,7 @@
  */
 package net.kyori.adventure.text.serializer.gson;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -30,48 +31,70 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.UUID;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 
-/* package */ final class ShowEntitySerializer implements JsonDeserializer<HoverEvent.ShowEntity>, JsonSerializer<HoverEvent.ShowEntity> {
+import static java.util.Objects.requireNonNull;
+
+/* package */ final class ShowEntitySerializer extends TypeAdapter<HoverEvent.ShowEntity> {
   static final String TYPE = "type";
   static final String ID = "id";
   static final String NAME = "name";
 
-  @Override
-  public HoverEvent.ShowEntity deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException {
-    final JsonObject object = json.getAsJsonObject();
+  private final TypeAdapter<Key> keyAdapter;
+  private final TypeAdapter<Component> componentAdapter;
 
-    if(!object.has(TYPE) || !object.has(ID)) {
-      throw new JsonParseException("A show entity hover event needs type and id fields to be deserialized");
-    }
-
-    final Key type = context.deserialize(object.getAsJsonPrimitive(TYPE), Key.class);
-    final UUID id = UUID.fromString(object.getAsJsonPrimitive(ID).getAsString());
-
-    /* @Nullable */ Component name = null;
-    if(object.has(NAME)) {
-      name = context.deserialize(object.get(NAME), Component.class);
-    }
-
-    return new HoverEvent.ShowEntity(type, id, name);
+  /* package */ ShowEntitySerializer(final Gson instance) {
+    this.keyAdapter = instance.getAdapter(Key.class);
+    this.componentAdapter = instance.getAdapter(Component.class);
   }
 
   @Override
-  public JsonElement serialize(final HoverEvent.ShowEntity src, final Type typeOfSrc, final JsonSerializationContext context) {
-    final JsonObject json = new JsonObject();
+  public void write(final JsonWriter out, final HoverEvent.ShowEntity value) throws IOException {
+    out.beginObject();
+    
+    out.name(TYPE);
+    this.keyAdapter.write(out, value.type());
 
-    json.add(TYPE, context.serialize(src.type()));
-    json.addProperty(ID, src.id().toString());
-
-    final /* @Nullable */ Component name = src.name();
+    out.name(ID).value(value.id().toString());
+    final /* @Nullable */ Component name = value.name();
     if(name != null) {
-      json.add(NAME, context.serialize(name));
+      out.name(NAME);
+      this.componentAdapter.write(out, name);
     }
+    out.endObject();
+  }
 
-    return json;
+  @Override
+  public HoverEvent.ShowEntity read(final JsonReader in) throws IOException {
+    Key type = null;
+    UUID id = null;
+    Component name = null;
+    
+    in.beginObject();
+    while(in.peek() != JsonToken.END_OBJECT) {
+      final String key = in.nextName();
+      if(key.equals(TYPE)) {
+        type = this.keyAdapter.read(in);
+      } else if(key.equals(ID)) {
+        id = UUID.fromString(in.nextString());
+      } else if(key.equals(NAME)) {
+        name = this.componentAdapter.read(in);
+      }
+    }
+    in.endObject();
+
+    requireNonNull(type , "type is required to deserialize a hover event");
+    requireNonNull(id, "uuid is required to deserialize a hover event");
+    return new HoverEvent.ShowEntity(type, id, name);
+
   }
 }
