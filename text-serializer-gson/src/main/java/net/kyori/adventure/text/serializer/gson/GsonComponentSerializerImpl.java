@@ -27,7 +27,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.nbt.CompoundBinaryTag;
 import net.kyori.adventure.text.BlockNBTComponent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -38,14 +37,13 @@ import net.kyori.adventure.text.format.TextDecoration;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.util.function.UnaryOperator;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /* package */ final class GsonComponentSerializerImpl implements GsonComponentSerializer {
   private final Gson serializer;
   private final UnaryOperator<GsonBuilder> populator;
   private final boolean downsampleColor;
 
-  GsonComponentSerializerImpl(final CompoundBinaryTag.Codec nbtCodec, final boolean downsampleColor) {
+  GsonComponentSerializerImpl(final boolean downsampleColor) {
     this.downsampleColor = downsampleColor;
     this.populator = builder -> {
       builder.registerTypeHierarchyAdapter(Key.class, KeySerializer.INSTANCE);
@@ -53,7 +51,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
       builder.registerTypeAdapter(Style.class, new StyleSerializer());
       builder.registerTypeAdapter(ClickEvent.Action.class, IndexedSerializer.of("click action", ClickEvent.Action.NAMES));
       builder.registerTypeAdapter(HoverEvent.Action.class, IndexedSerializer.of("hover action", HoverEvent.Action.NAMES));
-      builder.registerTypeAdapter(HoverEvent.ShowItem.class, new ShowItemSerializer(nbtCodec));
+      builder.registerTypeAdapter(HoverEvent.ShowItem.class, new ShowItemSerializer());
       builder.registerTypeAdapter(HoverEvent.ShowEntity.class, new ShowEntitySerializer());
       builder.registerTypeAdapter(TextColorWrapper.class, new TextColorWrapper.Serializer());
       builder.registerTypeHierarchyAdapter(TextColor.class, downsampleColor ? TextColorSerializer.DOWNSAMPLE_COLOR : TextColorSerializer.INSTANCE);
@@ -91,7 +89,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
   }
 
   static final class BuilderImpl implements Builder {
-    private CompoundBinaryTag.@Nullable Codec nbtCodec;
     private boolean downsampleColor = false;
 
     BuilderImpl() {
@@ -102,12 +99,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
 
     @Override
-    public @NonNull Builder nbtCodec(final CompoundBinaryTag.@NonNull Codec codec) {
-      this.nbtCodec = codec;
-      return this;
-    }
-
-    @Override
     public @NonNull Builder downsampleColors() {
       this.downsampleColor = true;
       return this;
@@ -115,8 +106,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
     @Override
     public @NonNull GsonComponentSerializer build() {
-      if(this.nbtCodec == null) throw new IllegalStateException("nbt codec required");
-      return new GsonComponentSerializerImpl(this.nbtCodec, this.downsampleColor);
+      return new GsonComponentSerializerImpl(this.downsampleColor);
     }
   }
 }

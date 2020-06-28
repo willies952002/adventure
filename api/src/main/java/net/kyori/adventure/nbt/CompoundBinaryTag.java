@@ -36,10 +36,22 @@ public interface CompoundBinaryTag {
    * one from a specific platform (when possible).
    */
 
+  static <T> @NonNull CompoundBinaryTag of(final @NonNull T nbt, final @NonNull Codec<T> codec) throws IOException {
+    return of(codec.encode(nbt));
+  }
+
+  static @NonNull CompoundBinaryTag of(final @NonNull String nbtData) {
+    return new CompoundBinaryTagImpl(nbtData);
+  }
+
+  <T> @NonNull T decode(final @NonNull Codec<T> codec) throws IOException;
+
+  @NonNull String encodeToString();
+
   /**
    * Something that can read and write a compound binary tag from a {@link String}.
    */
-  interface Codec {
+  interface Codec<T> {
     /**
      * Reads a compound binary tag from a {@link String}.
      *
@@ -47,7 +59,7 @@ public interface CompoundBinaryTag {
      * @return the compound binary tag
      * @throws IOException if an error occurred while reading
      */
-    @NonNull CompoundBinaryTag fromString(final @NonNull String string) throws IOException;
+    @NonNull T decode(final @NonNull String string) throws IOException;
 
     /**
      * Writes a compound binary tag to a {@link String}.
@@ -56,6 +68,6 @@ public interface CompoundBinaryTag {
      * @return the string
      * @throws IOException if an error occurred while reading
      */
-    @NonNull String asString(final @NonNull CompoundBinaryTag nbt) throws IOException;
+    @NonNull String encode(final @NonNull T nbt) throws IOException;
   }
 }
