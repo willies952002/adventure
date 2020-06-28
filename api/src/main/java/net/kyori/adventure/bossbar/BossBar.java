@@ -185,7 +185,7 @@ public interface BossBar {
   @NonNull BossBar removeListener(final @NonNull Listener listener);
 
   /**
-   * A listener for changes that happen on a {@link BossBar}
+   * A listener for changes that happen on a {@link BossBar}.
    */
   interface Listener {
     /**
