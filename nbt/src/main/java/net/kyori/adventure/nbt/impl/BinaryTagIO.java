@@ -36,6 +36,9 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import org.checkerframework.checker.nullness.qual.NonNull;
 
+/**
+ * Serialization operations for binary tags.
+ */
 public final class BinaryTagIO {
   private BinaryTagIO() {
   }
