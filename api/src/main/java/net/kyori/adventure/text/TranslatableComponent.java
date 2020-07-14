@@ -24,12 +24,13 @@
 package net.kyori.adventure.text;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.translation.Translation;
 import net.kyori.adventure.util.Buildable;
 import net.kyori.adventure.util.ShadyPines;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -59,6 +60,16 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
   }
 
   /**
+   * Creates a translatable component builder with a translation key.
+   *
+   * @param translation the translation
+   * @return a builder
+   */
+  static @NonNull Builder builder(final @NonNull Translation translation) {
+    return builder(translation.key());
+  }
+
+  /**
    * Creates a translatable component with a translation key.
    *
    * @param key the translation key
@@ -66,6 +77,16 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
    */
   static @NonNull TranslatableComponent of(final @NonNull String key) {
     return builder(key).build();
+  }
+
+  /**
+   * Creates a translatable component with a translation key.
+   *
+   * @param translation the translation
+   * @return the translatable component
+   */
+  static @NonNull TranslatableComponent of(final @NonNull Translation translation) {
+    return of(translation.key());
   }
 
   /**
@@ -77,6 +98,17 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
    */
   static @NonNull TranslatableComponent of(final @NonNull String key, final @Nullable TextColor color) {
     return builder(key).color(color).build();
+  }
+
+  /**
+   * Creates a translatable component with a translation key, and optional color.
+   *
+   * @param translation the translation
+   * @param color the color
+   * @return the translatable component
+   */
+  static @NonNull TranslatableComponent of(final @NonNull Translation translation, final @Nullable TextColor color) {
+    return of(translation.key(), color);
   }
 
   /**
@@ -94,6 +126,18 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
   /**
    * Creates a translatable component with a translation key, and optional color and decorations.
    *
+   * @param translation the translation
+   * @param color the color
+   * @param decorations the decorations
+   * @return the text component
+   */
+  static @NonNull TranslatableComponent of(final @NonNull Translation translation, final @Nullable TextColor color, final TextDecoration@NonNull... decorations) {
+    return of(translation.key(), color, decorations);
+  }
+
+  /**
+   * Creates a translatable component with a translation key, and optional color and decorations.
+   *
    * @param key the translation key
    * @param color the color
    * @param decorations the decorations
@@ -104,14 +148,37 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
   }
 
   /**
+   * Creates a translatable component with a translation key, and optional color and decorations.
+   *
+   * @param translation the translation
+   * @param color the color
+   * @param decorations the decorations
+   * @return the translatable component
+   */
+  static @NonNull TranslatableComponent of(final @NonNull Translation translation, final @Nullable TextColor color, final @NonNull Set<TextDecoration> decorations) {
+    return of(translation.key(), color, decorations);
+  }
+
+  /**
    * Creates a translatable component with a translation key and arguments.
    *
    * @param key the translation key
    * @param args the translation arguments
    * @return the translatable component
    */
-  static @NonNull TranslatableComponent of(final @NonNull String key, final @NonNull Component... args) {
-    return of(key, null, args);
+  static @NonNull TranslatableComponent of(final @NonNull String key, final @NonNull ComponentLike@NonNull... args) {
+    return of(key, Style.empty(), args);
+  }
+
+  /**
+   * Creates a translatable component with a translation key and arguments.
+   *
+   * @param translation the translation
+   * @param args the translation arguments
+   * @return the translatable component
+   */
+  static @NonNull TranslatableComponent of(final @NonNull Translation translation, final @NonNull ComponentLike@NonNull... args) {
+    return of(translation.key(), args);
   }
 
   /**
@@ -122,8 +189,20 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
    * @param args the translation arguments
    * @return the translatable component
    */
-  static @NonNull TranslatableComponent of(final @NonNull String key, final @Nullable TextColor color, final @NonNull Component... args) {
-    return of(key, color, Collections.emptySet(), args);
+  static @NonNull TranslatableComponent of(final @NonNull String key, final @Nullable TextColor color, final @NonNull ComponentLike@NonNull... args) {
+    return of(key, Style.of(color), args);
+  }
+
+  /**
+   * Creates a translatable component with a translation key, arguments, and optional color.
+   *
+   * @param translation the translation
+   * @param color the color
+   * @param args the translation arguments
+   * @return the translatable component
+   */
+  static @NonNull TranslatableComponent of(final @NonNull Translation translation, final @Nullable TextColor color, final @NonNull ComponentLike@NonNull... args) {
+    return of(translation.key(), color, args);
   }
 
   /**
@@ -135,8 +214,21 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
    * @param args the translation arguments
    * @return the translatable component
    */
-  static @NonNull TranslatableComponent of(final @NonNull String key, final @Nullable TextColor color, final @NonNull Set<TextDecoration> decorations, final @NonNull Component... args) {
-    return of(key, color, decorations, Arrays.asList(args));
+  static @NonNull TranslatableComponent of(final @NonNull String key, final @Nullable TextColor color, final @NonNull Set<TextDecoration> decorations, final @NonNull ComponentLike@NonNull... args) {
+    return of(key, Style.of(color, decorations), Arrays.asList(args));
+  }
+
+  /**
+   * Creates a translatable component with a translation key, arguments, and optional color and decorations.
+   *
+   * @param translation the translation
+   * @param color the color
+   * @param decorations the decorations
+   * @param args the translation arguments
+   * @return the translatable component
+   */
+  static @NonNull TranslatableComponent of(final @NonNull Translation translation, final @Nullable TextColor color, final @NonNull Set<TextDecoration> decorations, final @NonNull ComponentLike@NonNull... args) {
+    return of(translation.key(), color, decorations, args);
   }
 
   /**
@@ -146,8 +238,19 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
    * @param args the translation arguments
    * @return the translatable component
    */
-  static @NonNull TranslatableComponent of(final @NonNull String key, final @NonNull List<? extends Component> args) {
-    return of(key, null, args);
+  static @NonNull TranslatableComponent of(final @NonNull String key, final @NonNull List<? extends ComponentLike> args) {
+    return of(key, Style.empty(), args);
+  }
+
+  /**
+   * Creates a translatable component with a translation key and arguments.
+   *
+   * @param translation the translation
+   * @param args the translation arguments
+   * @return the translatable component
+   */
+  static @NonNull TranslatableComponent of(final @NonNull Translation translation, final @NonNull List<? extends ComponentLike> args) {
+    return of(translation.key(), args);
   }
 
   /**
@@ -158,8 +261,20 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
    * @param args the translation arguments
    * @return the translatable component
    */
-  static TranslatableComponent of(final @NonNull String key, final @Nullable TextColor color, final @NonNull List<? extends Component> args) {
-    return of(key, color, Collections.emptySet(), args);
+  static TranslatableComponent of(final @NonNull String key, final @Nullable TextColor color, final @NonNull List<? extends ComponentLike> args) {
+    return of(key, Style.of(color), args);
+  }
+
+  /**
+   * Creates a translatable component with a translation key, arguments, and optional color.
+   *
+   * @param translation the translation
+   * @param color the color
+   * @param args the translation arguments
+   * @return the translatable component
+   */
+  static TranslatableComponent of(final @NonNull Translation translation, final @Nullable TextColor color, final @NonNull List<? extends ComponentLike> args) {
+    return of(translation.key(), color, args);
   }
 
   /**
@@ -171,8 +286,57 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
    * @param args the translation arguments
    * @return the translatable component
    */
-  static @NonNull TranslatableComponent of(final @NonNull String key, final @Nullable TextColor color, final @NonNull Set<TextDecoration> decorations, final @NonNull List<? extends Component> args) {
-    return builder(key).color(color).decorations(decorations, true).args(args).build();
+  static @NonNull TranslatableComponent of(final @NonNull String key, final @Nullable TextColor color, final @NonNull Set<TextDecoration> decorations, final @NonNull List<? extends ComponentLike> args) {
+    return of(key, Style.of(color, decorations), args);
+  }
+
+  /**
+   * Creates a translatable component with a translation key, arguments, and optional color and decorations.
+   *
+   * @param translation the translation
+   * @param color the color
+   * @param decorations the decorations
+   * @param args the translation arguments
+   * @return the translatable component
+   */
+  static @NonNull TranslatableComponent of(final @NonNull Translation translation, final @Nullable TextColor color, final @NonNull Set<TextDecoration> decorations, final @NonNull List<? extends ComponentLike> args) {
+    return of(translation.key(), Style.of(color, decorations), args);
+  }
+
+  /**
+   * Creates a translatable component with a translation key, arguments, and style.
+   *
+   * @param key the translation key
+   * @param style the style
+   * @param args the translation arguments
+   * @return the translatable component
+   */
+  static @NonNull TranslatableComponent of(final @NonNull String key, final @NonNull Style style, final @NonNull ComponentLike@NonNull... args) {
+    return builder(key).style(style).args(args).build();
+  }
+
+  /**
+   * Creates a translatable component with a translation key, arguments, and style.
+   *
+   * @param key the translation key
+   * @param style the style
+   * @param args the translation arguments
+   * @return the translatable component
+   */
+  static @NonNull TranslatableComponent of(final @NonNull String key, final @NonNull Style style, final @NonNull List<? extends ComponentLike> args) {
+    return builder(key).style(style).args(args).build();
+  }
+
+  /**
+   * Creates a translatable component with a translation key, arguments, and style.
+   *
+   * @param translation the translation
+   * @param style the style
+   * @param args the translation arguments
+   * @return the translatable component
+   */
+  static @NonNull TranslatableComponent of(final @NonNull Translation translation, final @NonNull Style style, final @NonNull List<? extends ComponentLike> args) {
+    return of(translation.key(), style, args);
   }
 
   /**
@@ -196,6 +360,17 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
   static @NonNull TranslatableComponent make(final @NonNull String key, final @NonNull Consumer<? super Builder> consumer) {
     final Builder builder = builder(key);
     return Buildable.configureAndBuild(builder, consumer);
+  }
+
+  /**
+   * Creates a translatable component by applying configuration from {@code consumer}.
+   *
+   * @param translation the translation
+   * @param consumer the builder configurator
+   * @return the translatable component
+   */
+  static @NonNull TranslatableComponent make(final @NonNull Translation translation, final @NonNull Consumer<? super Builder> consumer) {
+    return make(translation.key(), consumer);
   }
 
   /**
@@ -283,7 +458,7 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
      * @param arg the translation arg
      * @return this builder
      */
-    @NonNull Builder args(final @NonNull Component arg);
+    @NonNull Builder args(final @NonNull ComponentLike arg);
 
     /**
      * Sets the translation args.
@@ -291,7 +466,7 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
      * @param args the translation args
      * @return this builder
      */
-    @NonNull Builder args(final @NonNull Component... args);
+    @NonNull Builder args(final @NonNull ComponentLike... args);
 
     /**
      * Sets the translation args.
@@ -299,6 +474,6 @@ public interface TranslatableComponent extends BuildableComponent<TranslatableCo
      * @param args the translation args
      * @return this builder
      */
-    @NonNull Builder args(final @NonNull List<? extends Component> args);
+    @NonNull Builder args(final @NonNull List<? extends ComponentLike> args);
   }
 }

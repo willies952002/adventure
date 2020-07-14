@@ -151,19 +151,19 @@ import static java.util.Objects.requireNonNull;
     }
 
     @Override
-    public @NonNull Builder args(final @NonNull Component arg) {
+    public @NonNull Builder args(final @NonNull ComponentLike arg) {
       return this.args(Collections.singletonList(arg));
     }
 
     @Override
-    public @NonNull Builder args(final @NonNull Component... args) {
+    public @NonNull Builder args(final @NonNull ComponentLike... args) {
       if(args.length == 0) return this.args(Collections.emptyList());
       return this.args(Arrays.asList(args));
     }
 
     @Override
-    public @NonNull Builder args(final @NonNull List<? extends Component> args) {
-      this.args = args;
+    public @NonNull Builder args(final @NonNull List<? extends ComponentLike> args) {
+      this.args = AbstractComponent.asComponents(args);
       return this;
     }
 
